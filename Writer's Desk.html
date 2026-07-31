@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Writer's Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171a24;
+    --ink-soft:#20242f;
+    --ink-line: rgba(243,233,210,0.14);
+    --parchment:#f3ead2;
+    --parchment-dim:#e8dbb9;
+    --parchment-line: rgba(23,26,36,0.12);
+    --brass:#c9a227;
+    --brass-bright:#e0b93a;
+    --teal:#2f6f63;
+    --rust:#b5533c;
+    --text-on-ink:#f3ead2;
+    --text-muted-on-ink: rgba(243,234,210,0.55);
+    --text-on-parchment:#20242f;
+    --text-muted-on-parchment: rgba(32,36,47,0.6);
+    --font-display:'Fraunces', Georgia, serif;
+    --font-body:'Source Serif 4', Georgia, serif;
+    --font-mono:'IBM Plex Mono', 'Courier New', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  html,body{
+    background: var(--ink);
+    color: var(--text-on-ink);
+    font-family: var(--font-body);
+    min-height:100vh;
+  }
+  .app{
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 36px 20px 80px;
+    min-height: 100vh;
+  }
+  .masthead{
+    text-align:center;
+    margin-bottom: 28px;
+  }
+  .masthead .eyebrow{
+    font-family: var(--font-mono);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-size: 11px;
+    color: var(--brass-bright);
+    margin-bottom: 10px;
+  }
+  .masthead h1{
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(30px, 5vw, 42px);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .masthead .sub{
+    font-family: var(--font-body);
+    font-style: italic;
+    color: var(--text-muted-on-ink);
+    font-size: 15px;
+    margin-top: 8px;
+  }
+
+  /* --- desk track (signature element) --- */
+  .desk-track{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:0;
+    margin: 30px 0 34px;
+    position: relative;
+  }
+  .desk-track::before{
+    content:"";
+    position:absolute;
+    left: 10%; right:10%; top: 15px;
+    height:1px;
+    background: repeating-linear-gradient(to right, var(--ink-line) 0 6px, transparent 6px 11px);
+    z-index:0;
+  }
+  .desk-stop{
+    position:relative;
+    z-index:1;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+  .desk-pin{
+    width: 30px; height:30px;
+    border-radius:50%;
+    background: var(--ink-soft);
+    border:1px solid var(--ink-line);
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted-on-ink);
+    transition: all .3s ease;
+  }
+  .desk-stop.active .desk-pin{
+    background: var(--brass);
+    border-color: var(--brass);
+    color: var(--ink);
+    box-shadow: 0 0 0 4px rgba(201,162,39,0.18);
+  }
+  .desk-stop.done .desk-pin{
+    background: var(--teal);
+    border-color: var(--teal);
+    color: var(--text-on-ink);
+  }
+  .desk-label{
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted-on-ink);
+  }
+  .desk-stop.active .desk-label{ color: var(--brass-bright); }
+
+  /* --- paper card --- */
+  .page{
+    background: var(--parchment);
+    color: var(--text-on-parchment);
+    border-radius: 3px;
+    padding: 34px 32px;
+    box-shadow: 0 30px 60px -25px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.04) inset;
+    position: relative;
+  }
+  .page::after{
+    content:"";
+    position:absolute; inset:0;
+    border-radius:3px;
+    box-shadow: inset 0 0 0 1px var(--parchment-line);
+    pointer-events:none;
+  }
+  .step-kicker{
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin: 0 0 6px;
+  }
+  .step-title{
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 24px;
+    margin: 0 0 6px;
+  }
+  .step-desc{
+    color: var(--text-muted-on-parchment);
+    font-size: 14.5px;
+    margin: 0 0 24px;
+    line-height:1.5;
+  }
+
+  /* buttons */
+  .btn{
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.03em;
+    padding: 11px 18px;
+    border-radius: 3px;
+    border: 1px solid var(--parchment-line);
+    background: transparent;
+    color: var(--text-on-parchment);
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .btn:hover{ border-color: var(--text-on-parchment); }
+  .btn:disabled{ opacity:0.4; cursor:default; }
+  .btn-primary{
+    background: var(--ink);
+    color: var(--parchment);
+    border-color: var(--ink);
+  }
+  .btn-primary:hover{ background:#000; }
+  .btn-brass{
+    background: var(--brass);
+    color: var(--ink);
+    border-color: var(--brass);
+  }
+  .btn-brass:hover{ background: var(--brass-bright); }
+  .btn-ghost{
+    background: transparent;
+    color: var(--text-muted-on-parchment);
+    border-color: transparent;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .row.end{ justify-content:flex-end; margin-top: 22px; }
+  .row.between{ justify-content:space-between; margin-top: 22px; }
+
+  /* idea cards */
+  .idea-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 560px){ .idea-grid{ grid-template-columns: 1fr; } }
+  .idea-card{
+    text-align:left;
+    background: var(--parchment-dim);
+    border: 1px solid var(--parchment-line);
+    border-radius: 3px;
+    padding: 16px 16px;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .idea-card:hover{ border-color: var(--teal); transform: translateY(-1px); }
+  .idea-card.selected{ border-color: var(--teal); box-shadow: 0 0 0 1px var(--teal); background:#e2ecd7; }
+  .idea-card .idea-title{
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 16px;
+    margin: 0 0 6px;
+  }
+  .idea-card .idea-hook{
+    font-size: 13.5px;
+    color: var(--text-muted-on-parchment);
+    line-height:1.45;
+    margin:0;
+  }
+
+  textarea, input[type=text]{
+    width:100%;
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height:1.6;
+    padding: 14px 16px;
+    border-radius: 3px;
+    border: 1px solid var(--parchment-line);
+    background: #fbf6e8;
+    color: var(--text-on-parchment);
+    resize: vertical;
+  }
+  textarea:focus, input[type=text]:focus{ outline: 2px solid var(--teal); outline-offset: 1px; }
+  label.field-label{
+    display:block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted-on-parchment);
+    margin-bottom: 8px;
+  }
+
+  /* length choices */
+  .length-grid{ display:flex; gap:12px; margin-bottom: 6px; }
+  .length-card{
+    flex:1;
+    text-align:center;
+    padding: 20px 10px;
+    border-radius:3px;
+    border:1px solid var(--parchment-line);
+    background: var(--parchment-dim);
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .length-card:hover{ border-color: var(--teal); }
+  .length-card.selected{ border-color: var(--teal); box-shadow: 0 0 0 1px var(--teal); background:#e2ecd7; }
+  .length-card .len-name{
+    font-family: var(--font-display);
+    font-weight:600;
+    font-size: 17px;
+  }
+  .length-card .len-detail{
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-muted-on-parchment);
+    margin-top: 4px;
+  }
+
+  .recap{
+    background: var(--parchment-dim);
+    border-left: 3px solid var(--teal);
+    padding: 12px 14px;
+    font-size: 13.5px;
+    color: var(--text-muted-on-parchment);
+    border-radius: 2px;
+    margin-bottom: 22px;
+  }
+  .recap b{ color: var(--text-on-parchment); }
+
+  .story-box{ min-height: 320px; }
+
+  /* loading */
+  .loading-wrap{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding: 60px 10px;
+    gap: 16px;
+  }
+  .typewriter{ font-family: var(--font-mono); font-size: 13px; color: var(--text-muted-on-parchment); letter-spacing:0.03em; }
+  .carriage{
+    width: 220px; height: 3px; background: var(--parchment-line); border-radius:2px; overflow:hidden; position:relative;
+  }
+  .carriage::after{
+    content:""; position:absolute; top:0; left:-40%; width:40%; height:100%;
+    background: var(--teal);
+    animation: slide 1.1s ease-in-out infinite;
+  }
+  @keyframes slide{
+    0%{ left:-40%; } 50%{ left:60%; } 100%{ left:-40%; }
+  }
+
+  .error-msg{
+    background: rgba(181,83,60,0.12);
+    border: 1px solid var(--rust);
+    color: var(--rust);
+    padding: 12px 14px;
+    border-radius: 3px;
+    font-size: 13.5px;
+    margin-bottom: 18px;
+  }
+
+  .footnote{
+    text-align:center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted-on-ink);
+    margin-top: 22px;
+    letter-spacing: 0.03em;
+  }
+  .footnote a{ color: var(--brass-bright); cursor:pointer; text-decoration: underline; }
+
+  .word-count{
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted-on-parchment);
+    text-align:right;
+    margin-top:6px;
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+const API_URL = "https://vibe-proxy-gqv4.onrender.com/v1/chat/completions";
+const API_KEY = "sk-vibe-summer-2026";
+
+const LENGTH_GUIDE = {
+  Short:  { detail: "~150-250 words" },
+  Medium: { detail: "~400-600 words" },
+  Long:   { detail: "~800-1200 words" }
+};
+
+const state = {
+  stage: "bot1",       // bot1, bot2-length, generating-story, edit, generating-review, final, bot3-paste
+  ideas: [],
+  ideaError: null,
+  ideaLoading: false,
+  ideaStatus: null,
+  genStatus: null,
+  selectedIdeaIndex: null,
+  customIdea: "",
+  chosenIdea: "",       // final locked-in idea text sent to bot2
+  length: null,
+  storyText: "",
+  editedText: "",
+  error: null
+};
+
+const app = document.getElementById("app");
+
+function sleep(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+
+// The proxy's documented request shape only shows a single {role:"user", content:...}
+// message, so we fold any "system" instructions into that one user message rather
+// than sending a separate system role, in case the proxy doesn't support it.
+//
+// Free Render web services spin down after inactivity and can take 30-60s to wake
+// back up on the first request, which often shows up in the browser as a failed
+// fetch (not a slow one). So we retry several times with growing delays before
+// giving up, and report status via onStatus() so the UI can show what's happening.
+async function callBot(systemInstructions, userContent, onStatus){
+  const combined = systemInstructions
+    ? systemInstructions.trim() + "\n\n---\n\n" + userContent.trim()
+    : userContent.trim();
+
+  const payload = { model: "class-chat-model", messages: [ { role: "user", content: combined } ] };
+  const delays = [1500, 3000, 6000, 12000, 20000]; // ms, ~5 attempts / ~42s total of waiting
+  let lastError = null;
+
+  for(let attempt = 0; attempt <= delays.length; attempt++){
+    if(attempt > 0 && onStatus) onStatus("Still trying (attempt " + (attempt+1) + " of " + (delays.length+1) + ")… the server may be waking up.");
+    console.log("[Writer's Desk] attempt " + (attempt+1) + " → ", payload);
+
+    let res, bodyText;
+    try{
+      res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + API_KEY
+        },
+        body: JSON.stringify(payload)
+      });
+      bodyText = await res.text();
+      console.log("[Writer's Desk] response ← status:", res.status, "body:", bodyText.slice(0,300));
+    }catch(networkErr){
+      // fetch() itself threw — DNS failure, server unreachable, or CORS block.
+      console.error("[Writer's Desk] network-level error on attempt " + (attempt+1), networkErr);
+      lastError = { kind: "network", detail: networkErr.message };
+      if(attempt < delays.length){ await sleep(delays[attempt]); continue; }
+      break;
+    }
+
+    if(!res.ok){
+      // 502/503/504 typically mean the server is still starting up — worth retrying.
+      if([502,503,504].includes(res.status) && attempt < delays.length){
+        lastError = { kind: "http", status: res.status, detail: bodyText.slice(0,200) };
+        await sleep(delays[attempt]);
+        continue;
+      }
+      throw new Error("The desk's server replied with an error (status " + res.status + "): " + bodyText.slice(0,200));
+    }
+
+    let data;
+    try{ data = JSON.parse(bodyText); }
+    catch(e){ throw new Error("The desk's server didn't send back valid JSON. Raw reply: " + bodyText.slice(0,200)); }
+
+    if(data && data.choices && data.choices[0] && data.choices[0].message) return data.choices[0].message.content;
+    if(data && data.content) return typeof data.content === "string" ? data.content : JSON.stringify(data.content);
+    if(typeof data === "string") return data;
+    throw new Error("Got an unexpected reply shape back from the desk: " + bodyText.slice(0,200));
+  }
+
+  // All attempts exhausted without ever getting a usable response.
+  if(lastError && lastError.kind === "network"){
+    throw new Error(
+      "Couldn't reach " + API_URL + " after " + (delays.length+1) + " tries (" + lastError.detail + "). " +
+      "This is almost always: (1) the Render server is asleep or offline — visiting the URL directly in a new browser tab will show if it responds at all, or " +
+      "(2) the server isn't sending CORS headers, which silently blocks browser requests. Check with whoever runs the proxy that it's awake and allows cross-origin requests."
+    );
+  }
+  if(lastError && lastError.kind === "http"){
+    throw new Error("The desk's server kept returning status " + lastError.status + " (" + lastError.detail + ") even after retrying — it looks like it's stuck starting up or crashing.");
+  }
+  throw new Error("Couldn't reach the desk's server for an unknown reason.");
+}
+
+function stripFences(text){
+  return text.trim().replace(/^```(json)?/i, "").replace(/```$/,"").trim();
+}
+
+function parseIdeas(raw){
+  const cleaned = stripFences(raw);
+  try{
+    const parsed = JSON.parse(cleaned);
+    if(Array.isArray(parsed)) return parsed.filter(x => x && x.title).slice(0,4);
+  }catch(e){}
+  const match = cleaned.match(/\[[\s\S]*\]/);
+  if(match){
+    try{
+      const parsed = JSON.parse(match[0]);
+      if(Array.isArray(parsed)) return parsed.filter(x => x && x.title).slice(0,4);
+    }catch(e){}
+  }
+  return null;
+}
+
+async function fetchIdeas(){
+  state.ideaLoading = true;
+  state.ideaError = null;
+  state.ideaStatus = null;
+  render();
+  try{
+    const raw = await callBot(
+      "You are Bot 1, the idea spark for a collaborative fiction app called The Writer's Desk. When asked for ideas, reply with ONLY valid JSON — an array of exactly 4 objects, each shaped {\"title\": string (3-6 words), \"hook\": string (one evocative sentence, max 25 words)}. No prose, no markdown fences, no commentary. Vary genre, tone, and setting across the 4 ideas.",
+      "Give me 4 fresh, varied story idea options.",
+      (msg) => { state.ideaStatus = msg; render(); }
+    );
+    const ideas = parseIdeas(raw);
+    if(!ideas || ideas.length === 0){
+      state.ideaError = "Couldn't quite make sense of the ideas that came back. Try again?";
+      state.ideas = [];
+    } else {
+      state.ideas = ideas;
+    }
+  }catch(e){
+    state.ideaError = e.message || "Something went wrong fetching ideas.";
+  }
+  state.ideaLoading = false;
+  render();
+}
+
+async function generateStory(){
+  state.stage = "generating-story";
+  state.error = null;
+  state.genStatus = null;
+  render();
+  try{
+    const guide = LENGTH_GUIDE[state.length].detail;
+    const raw = await callBot(
+      "You are Bot 2, the drafting writer at The Writer's Desk. Write a complete short story based on the given premise, at the requested length. Output ONLY the story text itself — no preamble, no title header unless it flows naturally as an opening line, no notes, no markdown formatting.",
+      "Premise: " + state.chosenIdea + "\nTarget length: " + state.length + " (" + guide + ")\nWrite the story now.",
+      (msg) => { state.genStatus = msg; render(); }
+    );
+    state.storyText = raw.trim();
+    state.editedText = state.storyText;
+    state.stage = "edit";
+  }catch(e){
+    state.error = e.message || "The draft didn't come through. Try again.";
+    state.stage = "bot2-length";
+  }
+  render();
+}
+
+async function reviewStory(){
+  state.stage = "generating-review";
+  state.error = null;
+  state.genStatus = null;
+  render();
+  try{
+    const raw = await callBot(
+      "You are Bot 3, the editor at The Writer's Desk. Revise and polish the story you're given: fix grammar and pacing, tighten weak sentences, smooth transitions, and improve flow — while preserving the author's voice, characters, and plot. Output ONLY the revised story text, no notes, no preamble, no markdown formatting.",
+      "Here is the story to edit:\n\n" + state.editedText,
+      (msg) => { state.genStatus = msg; render(); }
+    );
+    state.editedText = raw.trim();
+    state.stage = "final";
+  }catch(e){
+    state.error = e.message || "The edit pass didn't come through. Try again.";
+    state.stage = "edit";
+  }
+  render();
+}
+
+function wordCount(text){
+  const t = text.trim();
+  if(!t) return 0;
+  return t.split(/\s+/).length;
+}
+
+function resetAll(){
+  state.stage = "bot1";
+  state.ideas = [];
+  state.ideaError = null;
+  state.selectedIdeaIndex = null;
+  state.customIdea = "";
+  state.chosenIdea = "";
+  state.length = null;
+  state.storyText = "";
+  state.editedText = "";
+  state.error = null;
+  render();
+  fetchIdeas();
+}
+
+function deskTrack(){
+  const stops = [
+    { key:"bot1", label:"Spark", stages:["bot1"] },
+    { key:"bot2", label:"Draft", stages:["bot2-length","generating-story","edit"] },
+    { key:"bot3", label:"Polish", stages:["generating-review","final","bot3-paste"] }
+  ];
+  const order = ["bot1","bot2","bot3"];
+  const currentIdx = order.findIndex(k => stops.find(s => s.key===k).stages.includes(state.stage));
+  return `<div class="desk-track">` + stops.map((s,i) => {
+    let cls = "desk-stop";
+    if(i < currentIdx) cls += " done";
+    if(i === currentIdx) cls += " active";
+    return `<div class="${cls}"><div class="desk-pin">${i+1}</div><div class="desk-label">${s.label}</div></div>`;
+  }).join("") + `</div>`;
+}
+
+function render(){
+  let body = "";
+
+  if(state.stage === "bot1"){
+    body = renderBot1();
+  } else if(state.stage === "bot3-paste"){
+    body = renderBot3Paste();
+  } else if(state.stage === "bot2-length"){
+    body = renderLength();
+  } else if(state.stage === "generating-story"){
+    body = renderLoading("Bot 2 is drafting your story...", ["Sharpening pencils…", "Chasing the opening line…", "Filling the page…"]);
+  } else if(state.stage === "edit"){
+    body = renderEdit();
+  } else if(state.stage === "generating-review"){
+    body = renderLoading("Bot 3 is reviewing your story...", ["Reading it twice…", "Tightening loose sentences…", "Polishing the ending…"]);
+  } else if(state.stage === "final"){
+    body = renderFinal();
+  }
+
+  app.innerHTML = `
+    <div class="masthead">
+      <div class="eyebrow">The Writer's Desk</div>
+      <h1>A Three-Bot Story Studio</h1>
+      <div class="sub">Spark an idea, draft the story, then send it to the editor.</div>
+    </div>
+    ${deskTrack()}
+    <div class="page">${body}</div>
+    <div class="footnote"><a data-action="reset">Start a brand new story</a></div>
+  `;
+  bindEvents();
+}
+
+function renderBot1(){
+  let ideasHtml = "";
+  if(state.ideaLoading){
+    ideasHtml = `<div class="loading-wrap"><div class="typewriter">Bot 1 is thinking up ideas…</div><div class="carriage"></div>${state.ideaStatus ? `<div class="typewriter" style="opacity:0.7;">${escapeHtml(state.ideaStatus)}</div>` : ""}</div>`;
+  } else if(state.ideaError){
+    ideasHtml = `<div class="error-msg">${escapeHtml(state.ideaError)}</div><div class="row"><button class="btn" data-action="fetch-ideas">Try again</button></div>`;
+  } else if(state.ideas.length){
+    ideasHtml = `<div class="idea-grid">` + state.ideas.map((idea,i) => {
+      const sel = state.selectedIdeaIndex === i ? " selected" : "";
+      return `<div class="idea-card${sel}" data-action="select-idea" data-idx="${i}">
+        <p class="idea-title">${escapeHtml(idea.title||"")}</p>
+        <p class="idea-hook">${escapeHtml(idea.hook||"")}</p>
+      </div>`;
+    }).join("") + `</div>
+    <div class="row" style="margin-bottom:22px;"><button class="btn" data-action="fetch-ideas">Shuffle new ideas</button></div>`;
+  }
+
+  return `
+    <p class="step-kicker">Step 1 — Bot 1, the spark</p>
+    <h2 class="step-title">Pick a story idea</h2>
+    <p class="step-desc">Choose one of the prompts below, or write your own idea in the box. You can also skip straight to the editor if you already have a finished story.</p>
+    ${ideasHtml}
+    <label class="field-label">Or write your own idea</label>
+    <input type="text" id="custom-idea-input" placeholder="e.g. A lighthouse keeper who receives letters from the future" value="${escapeHtml(state.customIdea)}" />
+    <div class="row between">
+      <button class="btn btn-ghost" data-action="skip-to-bot3">Skip ahead to Bot 3 (I already have a story)</button>
+      <button class="btn btn-primary" data-action="confirm-idea">Continue to Bot 2 →</button>
+    </div>
+  `;
+}
+
+function renderBot3Paste(){
+  return `
+    <p class="step-kicker">Skipping to Bot 3 — the editor</p>
+    <h2 class="step-title">Paste your story</h2>
+    <p class="step-desc">Bring your own story and Bot 3 will review and polish it for you.</p>
+    <label class="field-label">Your story</label>
+    <textarea id="paste-story-input" class="story-box" placeholder="Paste your story here…">${escapeHtml(state.editedText)}</textarea>
+    ${state.error ? `<div class="error-msg" style="margin-top:16px;">${escapeHtml(state.error)}</div>` : ""}
+    <div class="row between">
+      <button class="btn btn-ghost" data-action="back-to-bot1">← Back to Bot 1</button>
+      <button class="btn btn-primary" data-action="paste-send-review">Send to Bot 3 for review →</button>
+    </div>
+  `;
+}
+
+function renderLength(){
+  const lens = ["Short","Medium","Long"];
+  return `
+    <p class="step-kicker">Step 2 — Bot 2, the draft</p>
+    <h2 class="step-title">How long should it be?</h2>
+    <div class="recap"><b>Idea:</b> ${escapeHtml(state.chosenIdea)}</div>
+    ${state.error ? `<div class="error-msg">${escapeHtml(state.error)}</div>` : ""}
+    <div class="length-grid">
+      ${lens.map(l => {
+        const sel = state.length === l ? " selected" : "";
+        return `<div class="length-card${sel}" data-action="select-length" data-len="${l}">
+          <div class="len-name">${l}</div>
+          <div class="len-detail">${LENGTH_GUIDE[l].detail}</div>
+        </div>`;
+      }).join("")}
+    </div>
+    <div class="row between">
+      <button class="btn btn-ghost" data-action="back-to-bot1">← Back to Bot 1</button>
+      <button class="btn btn-primary" data-action="generate-story" ${state.length? "":"disabled"}>Write the story →</button>
+    </div>
+  `;
+}
+
+function renderLoading(title, msgs){
+  const msg = msgs[Math.floor(Math.random()*msgs.length)];
+  return `<div class="loading-wrap">
+    <div class="typewriter">${escapeHtml(msg)}</div>
+    <div class="carriage"></div>
+    ${state.genStatus ? `<div class="typewriter" style="opacity:0.7;">${escapeHtml(state.genStatus)}</div>` : ""}
+  </div>`;
+}
+
+function renderEdit(){
+  return `
+    <p class="step-kicker">Step 2 — Bot 2's draft</p>
+    <h2 class="step-title">Make it yours</h2>
+    <p class="step-desc">Edit the story below however you like. When you're happy, send it to Bot 3 for a review pass.</p>
+    ${state.error ? `<div class="error-msg">${escapeHtml(state.error)}</div>` : ""}
+    <label class="field-label">Story draft</label>
+    <textarea id="edit-story-input" class="story-box">${escapeHtml(state.editedText)}</textarea>
+    <div class="word-count" id="word-count">${wordCount(state.editedText)} words</div>
+    <div class="row between">
+      <button class="btn btn-ghost" data-action="back-to-length">← Change length / regenerate</button>
+      <button class="btn btn-primary" data-action="send-review">Send to Bot 3 for review →</button>
+    </div>
+  `;
+}
+
+function renderFinal(){
+  return `
+    <p class="step-kicker">Step 3 — Bot 3's polish</p>
+    <h2 class="step-title">Your finished story</h2>
+    <p class="step-desc">Bot 3 has reviewed and polished the story. You can still edit it, copy it, or start over.</p>
+    <label class="field-label">Final story</label>
+    <textarea id="final-story-input" class="story-box">${escapeHtml(state.editedText)}</textarea>
+    <div class="word-count">${wordCount(state.editedText)} words</div>
+    <div class="row between">
+      <button class="btn" data-action="edit-more">Keep editing</button>
+      <div class="row">
+        <button class="btn" data-action="copy-final">Copy story</button>
+        <button class="btn btn-brass" data-action="review-again">Send back to Bot 3 again</button>
+      </div>
+    </div>
+  `;
+}
+
+function escapeHtml(str){
+  return String(str||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function bindEvents(){
+  app.querySelectorAll("[data-action]").forEach(el => {
+    el.addEventListener("click", onAction);
+  });
+  const customInput = document.getElementById("custom-idea-input");
+  if(customInput){
+    customInput.addEventListener("input", (e) => {
+      state.customIdea = e.target.value;
+      if(state.customIdea.trim()){
+        state.selectedIdeaIndex = null;
+        app.querySelectorAll(".idea-card").forEach(c => c.classList.remove("selected"));
+      }
+    });
+  }
+  const editInput = document.getElementById("edit-story-input");
+  if(editInput){
+    editInput.addEventListener("input", (e) => {
+      state.editedText = e.target.value;
+      const wc = document.getElementById("word-count");
+      if(wc) wc.textContent = wordCount(state.editedText) + " words";
+    });
+  }
+  const finalInput = document.getElementById("final-story-input");
+  if(finalInput){
+    finalInput.addEventListener("input", (e) => { state.editedText = e.target.value; });
+  }
+  const pasteInput = document.getElementById("paste-story-input");
+  if(pasteInput){
+    pasteInput.addEventListener("input", (e) => { state.editedText = e.target.value; });
+  }
+}
+
+function onAction(e){
+  const action = e.currentTarget.getAttribute("data-action");
+  if(action === "select-idea"){
+    const idx = parseInt(e.currentTarget.getAttribute("data-idx"),10);
+    state.selectedIdeaIndex = idx;
+    state.customIdea = "";
+    render();
+  } else if(action === "fetch-ideas"){
+    fetchIdeas();
+  } else if(action === "confirm-idea"){
+    const custom = (document.getElementById("custom-idea-input")||{}).value || state.customIdea;
+    if(custom && custom.trim()){
+      state.chosenIdea = custom.trim();
+    } else if(state.selectedIdeaIndex !== null && state.ideas[state.selectedIdeaIndex]){
+      const idea = state.ideas[state.selectedIdeaIndex];
+      state.chosenIdea = idea.title + " — " + idea.hook;
+    } else {
+      state.error = null;
+      alert("Pick an idea card or write your own idea first.");
+      return;
+    }
+    state.error = null;
+    state.stage = "bot2-length";
+    render();
+  } else if(action === "skip-to-bot3"){
+    state.stage = "bot3-paste";
+    state.error = null;
+    render();
+  } else if(action === "back-to-bot1"){
+    state.stage = "bot1";
+    state.error = null;
+    render();
+  } else if(action === "select-length"){
+    state.length = e.currentTarget.getAttribute("data-len");
+    render();
+  } else if(action === "generate-story"){
+    if(!state.length) return;
+    generateStory();
+  } else if(action === "back-to-length"){
+    state.stage = "bot2-length";
+    state.error = null;
+    render();
+  } else if(action === "send-review"){
+    reviewStory();
+  } else if(action === "review-again"){
+    reviewStory();
+  } else if(action === "edit-more"){
+    state.stage = "edit";
+    render();
+  } else if(action === "copy-final"){
+    navigator.clipboard.writeText(state.editedText).then(() => {
+      e.currentTarget.textContent = "Copied!";
+      setTimeout(() => { e.currentTarget.textContent = "Copy story"; }, 1500);
+    }).catch(() => { alert("Couldn't copy automatically — please select and copy the text manually."); });
+  } else if(action === "paste-send-review"){
+    const text = (document.getElementById("paste-story-input")||{}).value || "";
+    if(!text.trim()){
+      state.error = "Paste in a story first.";
+      render();
+      return;
+    }
+    state.editedText = text.trim();
+    reviewStory();
+  } else if(action === "reset"){
+    resetAll();
+  }
+}
+
+render();
+fetchIdeas();
+</script>
+</body>
+</html>
