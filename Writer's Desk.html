@@ -8,20 +8,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#171a24;
-    --ink-soft:#20242f;
-    --ink-line: rgba(243,233,210,0.14);
-    --parchment:#f3ead2;
-    --parchment-dim:#e8dbb9;
-    --parchment-line: rgba(23,26,36,0.12);
-    --brass:#c9a227;
-    --brass-bright:#e0b93a;
-    --teal:#2f6f63;
-    --rust:#b5533c;
-    --text-on-ink:#f3ead2;
-    --text-muted-on-ink: rgba(243,234,210,0.55);
-    --text-on-parchment:#20242f;
-    --text-muted-on-parchment: rgba(32,36,47,0.6);
+    --ink:#160f3d;
+    --ink-soft:#2a1d66;
+    --ink-line: rgba(255,255,255,0.18);
+    --parchment:#fff9ef;
+    --parchment-dim:#fff0cc;
+    --parchment-line: rgba(53,37,113,0.16);
+    --brass:#ffb703;
+    --brass-bright:#ffd166;
+    --teal:#16c7b0;
+    --rust:#ff6b6b;
+    --pink:#ff4fd8;
+    --violet:#7c4dff;
+    --text-on-ink:#fff8ff;
+    --text-muted-on-ink: rgba(255,248,255,0.68);
+    --text-on-parchment:#241d4e;
+    --text-muted-on-parchment: rgba(36,29,78,0.65);
     --font-display:'Fraunces', Georgia, serif;
     --font-body:'Source Serif 4', Georgia, serif;
     --font-mono:'IBM Plex Mono', 'Courier New', monospace;
@@ -29,13 +31,16 @@
   *{box-sizing:border-box;}
   body{margin:0;}
   html,body{
-    background: var(--ink);
+    background:
+      radial-gradient(circle at top left, rgba(255,79,216,0.3), transparent 18%),
+      radial-gradient(circle at top right, rgba(255,183,3,0.35), transparent 18%),
+      linear-gradient(135deg, #150f3b 0%, #24114a 45%, #341a74 100%);
     color: var(--text-on-ink);
     font-family: var(--font-body);
     min-height:100vh;
   }
   .app{
-    max-width: 760px;
+    max-width: 840px;
     margin: 0 auto;
     padding: 36px 20px 80px;
     min-height: 100vh;
@@ -96,19 +101,19 @@
   .desk-pin{
     width: 30px; height:30px;
     border-radius:50%;
-    background: var(--ink-soft);
-    border:1px solid var(--ink-line);
+    background: linear-gradient(135deg, rgba(124,77,255,0.5), rgba(255,79,216,0.45));
+    border:1px solid rgba(255,255,255,0.4);
     display:flex; align-items:center; justify-content:center;
     font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--text-muted-on-ink);
+    color: var(--text-on-ink);
     transition: all .3s ease;
   }
   .desk-stop.active .desk-pin{
-    background: var(--brass);
-    border-color: var(--brass);
+    background: linear-gradient(135deg, var(--brass), var(--pink));
+    border-color: transparent;
     color: var(--ink);
-    box-shadow: 0 0 0 4px rgba(201,162,39,0.18);
+    box-shadow: 0 0 0 4px rgba(255,183,3,0.2);
   }
   .desk-stop.done .desk-pin{
     background: var(--teal);
@@ -126,12 +131,22 @@
 
   /* --- paper card --- */
   .page{
-    background: var(--parchment);
+    background: linear-gradient(180deg, #fffdf8 0%, #fff7e9 100%);
     color: var(--text-on-parchment);
-    border-radius: 3px;
+    border-radius: 18px;
     padding: 34px 32px;
-    box-shadow: 0 30px 60px -25px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.04) inset;
+    box-shadow: 0 24px 70px -26px rgba(8,0,44,0.75), 0 0 0 1px rgba(255,255,255,0.35) inset;
     position: relative;
+    overflow: hidden;
+  }
+  .page::before{
+    content:"";
+    position:absolute;
+    top:-80px; right:-80px;
+    width:220px; height:220px;
+    border-radius:50%;
+    background: radial-gradient(circle, rgba(255,79,216,0.22), rgba(255,79,216,0));
+    pointer-events:none;
   }
   .page::after{
     content:"";
@@ -177,17 +192,17 @@
   .btn:hover{ border-color: var(--text-on-parchment); }
   .btn:disabled{ opacity:0.4; cursor:default; }
   .btn-primary{
-    background: var(--ink);
-    color: var(--parchment);
-    border-color: var(--ink);
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    color: white;
+    border-color: transparent;
   }
-  .btn-primary:hover{ background:#000; }
+  .btn-primary:hover{ filter: brightness(1.05); }
   .btn-brass{
-    background: var(--brass);
+    background: linear-gradient(135deg, var(--brass), var(--brass-bright));
     color: var(--ink);
-    border-color: var(--brass);
+    border-color: transparent;
   }
-  .btn-brass:hover{ background: var(--brass-bright); }
+  .btn-brass:hover{ filter: brightness(1.03); }
   .btn-ghost{
     background: transparent;
     color: var(--text-muted-on-parchment);
@@ -209,15 +224,15 @@
   @media (max-width: 560px){ .idea-grid{ grid-template-columns: 1fr; } }
   .idea-card{
     text-align:left;
-    background: var(--parchment-dim);
+    background: linear-gradient(180deg, rgba(255,255,255,0.68), rgba(255,244,215,0.95));
     border: 1px solid var(--parchment-line);
-    border-radius: 3px;
+    border-radius: 14px;
     padding: 16px 16px;
     cursor:pointer;
     transition: all .15s ease;
   }
-  .idea-card:hover{ border-color: var(--teal); transform: translateY(-1px); }
-  .idea-card.selected{ border-color: var(--teal); box-shadow: 0 0 0 1px var(--teal); background:#e2ecd7; }
+  .idea-card:hover{ border-color: var(--pink); transform: translateY(-1px); }
+  .idea-card.selected{ border-color: var(--pink); box-shadow: 0 0 0 2px rgba(255,79,216,0.23); background:linear-gradient(180deg, rgba(255,244,215,0.98), rgba(255,224,246,0.98)); }
   .idea-card .idea-title{
     font-family: var(--font-display);
     font-weight: 600;
@@ -260,14 +275,14 @@
     flex:1;
     text-align:center;
     padding: 20px 10px;
-    border-radius:3px;
+    border-radius:14px;
     border:1px solid var(--parchment-line);
-    background: var(--parchment-dim);
+    background: linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,244,215,0.96));
     cursor:pointer;
     transition: all .15s ease;
   }
-  .length-card:hover{ border-color: var(--teal); }
-  .length-card.selected{ border-color: var(--teal); box-shadow: 0 0 0 1px var(--teal); background:#e2ecd7; }
+  .length-card:hover{ border-color: var(--violet); }
+  .length-card.selected{ border-color: var(--violet); box-shadow: 0 0 0 2px rgba(124,77,255,0.22); background:linear-gradient(180deg, rgba(251,244,255,0.98), rgba(237,233,255,0.98)); }
   .length-card .len-name{
     font-family: var(--font-display);
     font-weight:600;
@@ -677,7 +692,8 @@ function renderLength(){
 function renderLoading(title, msgs){
   const msg = msgs[Math.floor(Math.random()*msgs.length)];
   return `<div class="loading-wrap">
-    <div class="typewriter">${escapeHtml(msg)}</div>
+    <div class="typewriter">${escapeHtml(title)}</div>
+    <div class="typewriter" style="opacity:0.75;">${escapeHtml(msg)}</div>
     <div class="carriage"></div>
     ${state.genStatus ? `<div class="typewriter" style="opacity:0.7;">${escapeHtml(state.genStatus)}</div>` : ""}
   </div>`;
